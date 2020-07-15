@@ -1,45 +1,41 @@
-class Calculator:
+import re
+import pytest
 
-    def add(self, string):
-        self.string = string
-        string_numbers = self.split_string(self.string)
+def add(numberString):
+    if not numberString:
+        return 0
+    if numberString.isdigit() and int(numberString) > 0:
+        return int(numberString)
+    input_list = delimeters(numberString)
+    return negatives_not_allowed(input_list)
 
-        numbers = []
-        negative_numbers = []
-        for each in string_numbers:
-            try:
-                number = int(each)
-            except:
-                number = 0
+def negatives_not_allowed(numberString):
+    total = 0
+    negatives = []
+    for num in numberString:
+        num = int(num)
+        if num < 0:
+            negatives.append(num)
+        if num > 1000 or num < 0:
+            continue
+        total += int(num)
+    if len(negatives) > 0:
+        raise ValueError("Negatives not allowed " + str(negatives))
+    return total
 
-            if number < 0:
-                negative_numbers.append(number)
-            numbers.append(number)
-
-        if negative_numbers:
-            message = ','.join([str(number) for number in negative_numbers])
-            raise NegativesNotAllowedError(message)
-        return sum(numbers)
-
-    def split_string(self, string):
-        self.string = string
-        delimiter = ','
-        if self.string.startswith('//'):
-            delimiter = self.string[2]
-
-            self.string = self.string[3:]
-
-        self.string = self.string.replace('\n', delimiter)
-        string_numbers = self.string.split(delimiter)
-        return string_numbers
+def delimeters(numberString):
+    if numberString[0:2] == "//":
+        numberString = numberString.split("\n")[1]
+    return re.split("[^0-9-]+", numberString)
 
 
-def NegativesNotAllowedError(Exception):
-    pass
-
-
-if __name__ == "__main__":
-    string_calc = Calculator()
-
-    addition = string_calc.add("2,5")
-    print(addition)
+if __name__ == '__main__':
+    try:
+        print(add(""))
+        print(add("1,1"))
+        print(add("1,2,3,4"))
+        print(add("1\n2,3" ))
+        print(add("//;\n1;2"))
+        print(add("-1,-2,3,4"))
+    except(ValueError) as error:
+        print(error)
